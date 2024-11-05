@@ -1,1 +1,1 @@
-# ghcopilot
+# GitHub Copilot for defining and configuring Azure resources
