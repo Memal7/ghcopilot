@@ -72,7 +72,6 @@ resource "azurerm_container_registry" "example" {
   tags = local.tags
 }
 
-
 # create a key vault
 resource "azurerm_key_vault" "example" {
   name                = var.key_vault_name
@@ -97,4 +96,71 @@ resource "azurerm_key_vault_access_policy" "example" {
     "Backup",
     "Restore"
   ]
+}
+
+# create a virtual network
+resource "azurerm_virtual_network" "example" {
+  name                = "example-network"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+}
+
+# create a subnet
+resource "azurerm_subnet" "example" {
+  name                 = "example-subnet"
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+# create a public IP
+resource "azurerm_public_ip" "example" {
+  name                = "example-pip"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  allocation_method   = "Dynamic"
+}
+
+# create a network interface
+resource "azurerm_network_interface" "example" {
+  name                = "example-nic"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.example.id
+  }
+}
+
+# create a virtual machine
+resource "azurerm_linux_virtual_machine" "example" {
+  name                = "example-vm"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  size                = "Standard_DS1_v2"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.example.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "20_04-lts"
+    version   = "latest"
+  }
 }
