@@ -6,11 +6,10 @@
 ### Refining your Terraform file with Copilot assistance
 
 Try to improve the code suggested by Copilot by yourself. For example, try to change the following:
-- Create an Azure VM based on Linux Ubuntu:20.04.
-- Change the size of Azure VM.
-- Change the OS of the Azure VM.
+- Create a simple and small Azure VM based on Linux Ubuntu:20.04 in my main.tf file.
+- Change the size of the VM to the next bigger one.
 - Change the network interface of Azure VM to another one.
-- Change the deployment region from north europe to sweden central.
+- Change the deployment region from sweden central to US East.
 
 </details>
 
